@@ -1,0 +1,564 @@
+/* =====================================================================
+   estilo.css — visual do app. Tema escuro por padrão (ensaio),
+   tema claro no botão ◐ do topo. Pensado para celular em pé (~380 px).
+   ===================================================================== */
+
+:root {
+  --fundo:      #12141a;
+  --cartao:     #1c1f27;
+  --cartao-alt: #242833;
+  --borda:      #2f3441;
+  --texto:      #e8eaf0;
+  --texto-fraco:#9aa2b4;
+  --acento:     #ff8c42;
+  --acento-2:   #4ea8de;
+  --verde:      #4ac97e;
+  --vermelho:   #e5484d;
+  --pauta:      #8b93a7;
+  --nota:       #e8eaf0;
+  --focinho:    #6a7488;
+}
+
+html[data-tema="claro"] {
+  --fundo:      #f4f5f8;
+  --cartao:     #ffffff;
+  --cartao-alt: #eceef4;
+  --borda:      #d7dbe4;
+  --texto:      #1a1d24;
+  --texto-fraco:#5d6577;
+  --acento:     #e2660f;
+  --acento-2:   #1f6f9e;
+  --verde:      #1e8f4e;
+  --vermelho:   #c62a2f;
+  --pauta:      #4a5162;
+  --nota:       #1a1d24;
+  --focinho:    #aab2c2;
+}
+
+/* ---------------- paletas desbloqueáveis e dos mestres ---------------- */
+html[data-paleta="zurrildo"]  { --acento: #e5484d; --acento-2: #9aa3b2; }
+html[data-paleta="jegue"]     { --acento: #f2c53d; --acento-2: #3fae6a; }
+html[data-paleta="burrico"]   { --acento: #c266f0; --acento-2: #ff6bc4; }
+html[data-paleta="mula"]      { --acento: #d9b26a; --acento-2: #5b8fd6; }
+html[data-paleta="pasto"]     { --acento: #7bc96f; --acento-2: #c9a227; }
+html[data-paleta="ferradura"] { --acento: #ff7a3d; --acento-2: #8d9bb0; }
+html[data-paleta="ouro"],
+html[data-supremo="1"] {
+  --acento: #ffc84a; --acento-2: #e0a000; --pauta: #b99a4a; --nota: #ffe9a8;
+}
+html[data-supremo="1"] .cabecalho { box-shadow: 0 0 30px rgba(255, 200, 74, .35); }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.45;
+  padding-bottom: 150px;   /* espaço para o rodapé da frase + as abas */
+}
+
+main { max-width: 520px; margin: 0 auto; padding: 12px 14px 24px; }
+
+.oculto { display: none !important; }
+
+/* ---------------- cabeçalho ---------------- */
+.cabecalho {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--fundo) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borda);
+}
+/* Hierarquia da marca: o nome pesado e maiúsculo (sem serifa),
+   a brincadeira embaixo em serifa itálica, menor e discreta. */
+.marca { display: flex; align-items: center; gap: 10px; }
+.marca-txt { display: flex; flex-direction: column; gap: 1px; }
+
+/* A cabecinha é um easter egg: NÃO pode parecer botão.
+   Sem borda, sem fundo, sem sombra, sem realce ao tocar. */
+.cabecinha-area {
+  display: block; flex: none; line-height: 0;
+  background: none; border: none; box-shadow: none; outline: none;
+  cursor: default; -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
+}
+.cabecinha-area:active, .cabecinha-area:focus { outline: none; background: none; }
+.cabecinha {
+  width: 34px; height: 34px; display: block;
+  color: var(--texto-fraco);
+  pointer-events: none;   /* o clique é do <span>, não do desenho */
+}
+#logo { cursor: default; user-select: none; -webkit-user-select: none; }
+/* Fonte manuscrita/jocosa — todas já vêm no Mac e no iPhone,
+   então funciona offline sem baixar nenhum arquivo de fonte. */
+.logo {
+  margin: 0; font-size: 25px; letter-spacing: .5px;
+  font-family: "Chalkboard SE", "Chalkboard", "Marker Felt", "Comic Sans MS", "Noteworthy", cursive;
+  font-weight: 700; color: var(--acento); line-height: 1;
+  transform: rotate(-2.5deg); transform-origin: left center;
+  display: inline-block;
+}
+.assinatura {
+  margin: 0; font-size: 12.5px; letter-spacing: .2px;
+  font-family: "Iowan Old Style", "Palatino", Georgia, serif;
+  font-style: italic; font-weight: 400; color: var(--texto-fraco);
+}
+.btn-icone {
+  background: none; border: 1px solid var(--borda); color: var(--texto);
+  border-radius: 10px; width: 40px; height: 36px; font-size: 18px; cursor: pointer;
+}
+
+/* ---------------- abas ---------------- */
+.abas {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  display: flex; background: var(--cartao);
+  border-top: 1px solid var(--borda);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.aba {
+  flex: 1; background: none; border: none; cursor: pointer;
+  color: var(--texto-fraco); font-size: 12px; font-weight: 600;
+  padding: 9px 0 11px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.aba span { font-size: 21px; line-height: 1; }
+.aba.ativa { color: var(--acento); }
+
+/* ---------------- telas ---------------- */
+.tela { display: none; }
+.tela.ativa { display: block; }
+
+.subtitulo { color: var(--texto-fraco); font-size: 14px; margin: 4px 0 14px; }
+
+/* ---------------- lista de rudimentos ---------------- */
+.grade-lista { display: flex; flex-direction: column; gap: 10px; }
+.item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+  padding: 14px 15px; cursor: pointer; text-align: left; color: var(--texto);
+  font-family: inherit;
+}
+.item:active { background: var(--cartao-alt); }
+.item-num {
+  flex: none; width: 34px; height: 34px; border-radius: 9px;
+  background: var(--cartao-alt); color: var(--acento);
+  display: grid; place-items: center; font-weight: 800; font-size: 14px;
+}
+.item-txt { flex: 1; min-width: 0; }
+/* display:block é o que impede o nome e a linha de baixo de se colarem
+   ("Single Stroke RollRoll") — spans, por padrão, ficam lado a lado. */
+.item-nome { display: block; font-weight: 700; font-size: 17px; }
+.item-sub  { display: block; color: var(--texto-fraco); font-size: 13px; }
+.item-seta { color: var(--texto-fraco); font-size: 20px; }
+
+/* ---------------- detalhe do rudimento ---------------- */
+.btn-voltar {
+  background: none; border: none; color: var(--acento); font-size: 16px;
+  font-weight: 600; padding: 6px 0 10px; cursor: pointer; font-family: inherit;
+}
+#detalhe-rudimento h2 { margin: 0 0 8px; font-size: 24px; }
+.etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.etiqueta {
+  font-size: 12px; font-weight: 700; letter-spacing: .4px;
+  background: var(--cartao-alt); color: var(--texto-fraco);
+  border-radius: 999px; padding: 4px 10px;
+}
+.descricao { color: var(--texto-fraco); font-size: 15px; margin: 0 0 14px; }
+
+.caixa-partitura {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 14px; padding: 6px 4px; margin-bottom: 12px;
+}
+#partitura { width: 100%; height: auto; display: block; }
+
+/* ---------------- partitura (SVG) ---------------- */
+.pauta { stroke: var(--pauta); stroke-width: 1.6; }
+.barra { stroke: var(--pauta); stroke-width: 1.6; opacity: .55; }
+.barra.final { stroke-width: 3.4; opacity: .9; }
+.cabeca { fill: var(--nota); }
+.haste  { stroke: var(--nota); stroke-width: 2; }
+.feixe  { fill: var(--nota); }
+.acento { fill: none; stroke: var(--nota); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.stick {
+  fill: var(--texto-fraco); font-size: 17px; font-weight: 700;
+  text-anchor: middle; font-family: -apple-system, sans-serif;
+}
+.stick.menor { font-size: 12px; opacity: .8; }
+.cabeca.grace { fill: var(--nota); opacity: .75; }
+.haste.grace  { stroke: var(--nota); stroke-width: 1.4; opacity: .75; }
+.corte-grace  { stroke: var(--nota); stroke-width: 1.6; opacity: .75; }
+.ligadura     { fill: none; stroke: var(--nota); stroke-width: 1.4; opacity: .6; }
+.grace-feixe  { fill: var(--nota); }
+.buzz         { fill: none; stroke: var(--nota); stroke-width: 1.6; stroke-linejoin: round; }
+.pausa        { fill: var(--pauta); }
+.pausa-haste  { stroke: var(--pauta); stroke-width: 2; fill: none; stroke-linecap: round; }
+
+.faixa { fill: var(--acento); opacity: 0; }
+.faixa.ativa { opacity: .16; }
+.nota.ativa .cabeca,
+.nota.ativa .feixe,
+.nota.ativa .grace-feixe { fill: var(--acento); }
+.nota.ativa .haste,
+.nota.ativa .acento,
+.nota.ativa .corte-grace,
+.nota.ativa .buzz,
+.nota.ativa .ligadura { stroke: var(--acento); }
+.nota.ativa .stick    { fill: var(--acento); }
+
+/* ---------------- botões de som ---------------- */
+.linha-som { display: flex; gap: 8px; margin-bottom: 14px; }
+.btn-alto-falante {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px;
+  color: var(--texto); font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 11px 8px; cursor: pointer;
+}
+.btn-alto-falante[aria-pressed="false"] { color: var(--texto-fraco); opacity: .6; }
+
+/* ---------------- controles do metrônomo ---------------- */
+.controles { display: flex; flex-direction: column; gap: 12px; }
+
+.visor {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 16px; padding: 14px 14px 16px;
+}
+
+.pulsos { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; height: 16px; }
+.pulso {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--cartao-alt); border: 1px solid var(--borda);
+  transition: transform .06s linear, background .18s ease-out;
+}
+.pulso.acesa { background: var(--acento-2); transform: scale(1.35); transition: none; }
+.pulso.acesa.forte { background: var(--acento); transform: scale(1.6); }
+
+.bpm-linha { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-redondo {
+  width: 46px; height: 46px; border-radius: 12px; flex: none;
+  background: var(--cartao-alt); border: 1px solid var(--borda);
+  color: var(--texto); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.btn-redondo:active { background: var(--acento); color: #fff; }
+.bpm-caixa { flex: 1; text-align: center; }
+.bpm-num { display: block; font-size: 46px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.bpm-lbl { font-size: 11px; letter-spacing: 2px; color: var(--texto-fraco); font-weight: 700; }
+
+.slider { width: 100%; margin-top: 14px; accent-color: var(--acento); height: 26px; }
+
+.aviso-silencio {
+  margin-top: 8px; text-align: center; font-size: 12px; font-weight: 800;
+  letter-spacing: 2px; color: var(--acento-2);
+}
+
+.linha-botoes { display: flex; gap: 10px; }
+.btn-play {
+  flex: 2; background: var(--acento); color: #12141a; border: none; border-radius: 14px;
+  padding: 17px 10px; font-size: 19px; font-weight: 800; cursor: pointer; font-family: inherit;
+}
+.btn-play.tocando { background: var(--vermelho); color: #fff; }
+.btn-sec {
+  flex: 1; background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+  color: var(--texto); font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.btn-sec small { font-size: 10px; font-weight: 600; color: var(--texto-fraco); letter-spacing: 1px; }
+.btn-sec:active { background: var(--acento-2); color: #fff; }
+
+.volumes {
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 14px; padding: 10px 14px 12px;
+}
+.volumes label { display: block; }
+.vol-nome { font-size: 13px; font-weight: 700; color: var(--texto-fraco); }
+.slider-vol { margin-top: 2px; height: 22px; }
+
+.linha-selects { display: flex; gap: 10px; }
+.linha-selects label { flex: 1; font-size: 12px; color: var(--texto-fraco); font-weight: 700; }
+select, input[type="number"] {
+  width: 100%; margin-top: 5px; padding: 11px 10px; font-size: 16px; font-family: inherit;
+  background: var(--cartao); color: var(--texto);
+  border: 1px solid var(--borda); border-radius: 11px;
+}
+
+.linha-check {
+  display: flex; align-items: center; gap: 11px; font-size: 15px;
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 12px 14px; cursor: pointer;
+}
+.linha-check input { width: 21px; height: 21px; accent-color: var(--acento); flex: none; }
+
+.painel {
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+  padding: 4px 14px 6px;
+}
+.painel summary {
+  cursor: pointer; padding: 11px 0; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; gap: 8px;
+}
+.painel[open] summary { border-bottom: 1px solid var(--borda); margin-bottom: 12px; }
+.painel .linha-check { background: var(--cartao-alt); margin-bottom: 12px; }
+.pino {
+  margin-left: auto; font-size: 11px; font-weight: 800; letter-spacing: 1px;
+  color: var(--verde);
+}
+.linha-campos { display: flex; gap: 8px; margin-bottom: 10px; }
+.linha-campos label { flex: 1; font-size: 12px; color: var(--texto-fraco); font-weight: 700; }
+.linha-campos i { display: block; font-style: normal; font-size: 10px; margin-top: 3px; opacity: .8; }
+.dica { font-size: 13px; color: var(--texto-fraco); margin: 4px 0 10px; }
+
+/* ---------------- "em breve" ---------------- */
+.em-breve {
+  text-align: center; padding: 40px 18px;
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px;
+}
+.em-breve-icone { font-size: 48px; }
+.em-breve h2 { margin: 8px 0 12px; }
+.em-breve p { color: var(--texto-fraco); font-size: 15px; }
+.em-breve .nota { font-size: 14px; margin-top: 16px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* =====================================================================
+   RODAPÉ COM A FRASE
+   ===================================================================== */
+.rodape-frase {
+  position: fixed; left: 0; right: 0; bottom: 62px; z-index: 18;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px calc(9px + env(safe-area-inset-bottom) * 0);
+  background: color-mix(in srgb, var(--fundo) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--borda);
+}
+.frase {
+  flex: 1; margin: 0;
+  font-family: "Iowan Old Style", "Palatino", Georgia, serif;
+  font-style: italic; font-size: 13.5px; line-height: 1.4;
+  color: var(--texto-fraco); cursor: default;
+  max-height: 56px; overflow: hidden;
+}
+.frase .ref { font-style: normal; font-size: 11.5px; opacity: .8; white-space: nowrap; }
+.frase.secreta { color: var(--acento); }
+.coracao {
+  flex: none; background: none; border: none; cursor: pointer;
+  font-size: 22px; line-height: 1; color: var(--texto-fraco);
+  padding: 4px 2px; transition: transform .15s ease-out;
+}
+.coracao.curtida { color: var(--acento); transform: scale(1.15); }
+
+/* =====================================================================
+   ABA JUMESTRE
+   ===================================================================== */
+.cartao-mestre {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 16px; padding: 14px; margin-bottom: 12px;
+}
+.mestre-topo { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.mestre-avatar {
+  width: 46px; height: 46px; flex: none; border-radius: 13px;
+  background: var(--cartao-alt); display: grid; place-items: center; font-size: 26px;
+}
+.mestre-nome { font-weight: 800; font-size: 18px; }
+.mestre-titulo { font-size: 12.5px; color: var(--texto-fraco); }
+.mestre-fala {
+  margin: 0 0 12px; font-size: 16px; line-height: 1.45;
+  border-left: 3px solid var(--acento); padding-left: 12px;
+}
+.seletor-mestre label { font-size: 12px; font-weight: 700; color: var(--texto-fraco); }
+
+.painel-numeros { display: flex; gap: 8px; margin-bottom: 12px; }
+.numero {
+  flex: 1; background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 14px; padding: 12px 6px; text-align: center;
+}
+.numero-valor { display: block; font-size: 26px; font-weight: 800; color: var(--acento); line-height: 1.1; }
+.numero-rotulo { font-size: 11px; color: var(--texto-fraco); font-weight: 600; }
+
+.cartao-graduacao, .cartao-licao, .cartao-premios-topo, .cartao-avaliacao {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 16px; padding: 14px; margin-bottom: 12px;
+}
+.grad-linha { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.grad-nome { font-weight: 800; font-size: 17px; color: var(--acento); }
+.grad-prox { font-size: 11.5px; color: var(--texto-fraco); text-align: right; }
+.grad-desc { margin: 4px 0 10px; font-size: 13.5px; color: var(--texto-fraco); }
+.barra { height: 9px; background: var(--cartao-alt); border-radius: 6px; overflow: hidden; }
+.barra-cheia { height: 100%; width: 0%; background: var(--acento); border-radius: 6px; transition: width .4s ease-out; }
+
+.licao-rotulo { font-size: 11px; font-weight: 800; letter-spacing: 1.6px; color: var(--texto-fraco); }
+.licao-nome { font-size: 20px; font-weight: 800; margin: 3px 0 2px; }
+.licao-meta { font-size: 13px; color: var(--texto-fraco); margin-bottom: 12px; }
+.btn-licao { width: 100%; }
+
+.titulo-secao { font-size: 15px; margin: 18px 0 10px; letter-spacing: .3px; }
+.titulo-secao.sem-margem { margin-top: 0; }
+
+.modulo {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 9px;
+}
+.modulo.bloqueado { opacity: .55; }
+.modulo-topo { display: flex; align-items: center; gap: 9px; }
+.modulo-n {
+  width: 27px; height: 27px; flex: none; border-radius: 8px; font-size: 12px; font-weight: 800;
+  background: var(--cartao-alt); color: var(--acento); display: grid; place-items: center;
+}
+.modulo.concluido .modulo-n { background: var(--verde); color: #fff; }
+.modulo-nome { font-weight: 700; font-size: 15.5px; flex: 1; }
+.modulo-selo { font-size: 15px; }
+.modulo-resumo { font-size: 12.5px; color: var(--texto-fraco); margin: 6px 0 8px; }
+.modulo-itens { display: flex; flex-direction: column; gap: 4px; }
+.item-trilha {
+  display: flex; align-items: center; gap: 8px; font-size: 13.5px;
+  background: none; border: none; color: var(--texto); font-family: inherit;
+  text-align: left; padding: 3px 0; width: 100%;
+}
+.item-trilha.futuro { color: var(--texto-fraco); }
+.item-trilha .marca-ok { color: var(--verde); font-weight: 800; }
+.item-trilha .nota-mini { margin-left: auto; font-size: 11.5px; color: var(--texto-fraco); }
+
+/* =====================================================================
+   AVALIAÇÃO
+   ===================================================================== */
+.btn-sec.largo { flex: 1; flex-direction: row; gap: 6px; font-size: 14px; padding: 14px 6px; }
+.etiqueta-recorde { background: var(--acento); color: #12141a; }
+
+.tapa-tela {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(0, 0, 0, .72); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.janela, .batida-caixa {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 18px; padding: 18px; width: 100%; max-width: 420px;
+  max-height: 88vh; overflow-y: auto;
+}
+.janela h3 { margin: 0 0 10px; font-size: 19px; }
+.janela p { font-size: 14.5px; color: var(--texto-fraco); }
+.janela .destaque { color: var(--texto); }
+.janela-botoes { display: flex; gap: 9px; margin-top: 14px; }
+.janela-botoes button { flex: 1; }
+.btn-fechar {
+  background: none; border: none; color: var(--texto-fraco);
+  font-size: 20px; cursor: pointer; padding: 0 4px;
+}
+.campo-nome {
+  width: 100%; padding: 13px; font-size: 17px; font-family: inherit;
+  background: var(--cartao-alt); color: var(--texto);
+  border: 1px solid var(--borda); border-radius: 12px; margin-top: 8px;
+}
+
+.batida-topo { display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-bottom: 12px; }
+.batida-alvo {
+  height: 44vh; min-height: 210px; border-radius: 16px; margin-bottom: 12px;
+  background: var(--cartao-alt); border: 2px dashed var(--borda);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+.batida-alvo.pulso-toque { background: var(--acento); border-color: var(--acento); }
+.batida-contador { font-size: 54px; font-weight: 800; line-height: 1; }
+.batida-dica { font-size: 13px; color: var(--texto-fraco); }
+
+.nota-grande { font-size: 62px; font-weight: 800; color: var(--acento); line-height: 1; text-align: center; }
+.nota-rotulo { text-align: center; font-size: 12px; letter-spacing: 2px; color: var(--texto-fraco); font-weight: 700; margin-bottom: 12px; }
+.relatorio { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.relatorio div { display: flex; justify-content: space-between; font-size: 13.5px; }
+.relatorio span:first-child { color: var(--texto-fraco); }
+.relatorio span:last-child { font-weight: 700; }
+
+/* =====================================================================
+   PRÊMIOS
+   ===================================================================== */
+.premios-numero { font-size: 26px; font-weight: 800; color: var(--acento); }
+.premio {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 14px; padding: 13px 14px; margin-bottom: 9px;
+}
+.premio-icone {
+  width: 40px; height: 40px; flex: none; border-radius: 11px;
+  background: var(--cartao-alt); display: grid; place-items: center; font-size: 21px;
+}
+.premio.bloqueado .premio-icone { filter: grayscale(1) brightness(.5); }
+.premio.bloqueado .premio-nome { color: var(--texto-fraco); }
+.premio-nome { font-weight: 700; font-size: 15.5px; }
+.premio-desc { font-size: 12.5px; color: var(--texto-fraco); margin-top: 2px; }
+.premio-falta { font-size: 11.5px; font-weight: 700; color: var(--acento-2); margin-top: 4px; }
+.premio-usar {
+  margin-top: 7px; font-size: 12px; font-weight: 700; padding: 6px 12px;
+  background: var(--cartao-alt); border: 1px solid var(--borda);
+  border-radius: 9px; color: var(--texto); cursor: pointer; font-family: inherit;
+}
+.premio-usar.ativo { background: var(--acento); color: #12141a; border-color: var(--acento); }
+
+/* =====================================================================
+   FASE 2 — filtros, favoritos, edição de acentos
+   ===================================================================== */
+.filtros { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.filtro-linha { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--cartao); border: 1px solid var(--borda); color: var(--texto-fraco);
+  border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.chip.ativo { background: var(--acento); color: #12141a; border-color: var(--acento); }
+
+#secao-favoritos { margin-bottom: 4px; }
+.rotulo-secao {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--texto-fraco);
+  margin: 6px 2px 8px; text-transform: uppercase;
+}
+.item-estrela { color: var(--acento); font-size: 15px; margin-left: 6px; }
+
+.cabeca-rud { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cabeca-rud h2 { margin: 0 0 8px; }
+.btn-favorito {
+  flex: none; background: none; border: 1px solid var(--borda); border-radius: 12px;
+  color: var(--acento); font-size: 22px; width: 46px; height: 42px; cursor: pointer;
+  line-height: 1;
+}
+.btn-favorito[aria-pressed="true"] { background: var(--acento); color: #12141a; border-color: var(--acento); }
+
+.linha-acentos { display: flex; gap: 8px; margin-bottom: 6px; }
+#btn-editar-acentos.ativo { background: var(--acento); color: #12141a; border-color: var(--acento); }
+#partitura.editando { cursor: pointer; }
+#partitura.editando .nota .cabeca { cursor: pointer; }
+
+.etiqueta-conferir { background: #7a5a1a; color: #ffd98a; }
+html[data-tema="claro"] .etiqueta-conferir { background: #f2e2b8; color: #7a5a1a; }
+
+/* =====================================================================
+   FASE 3 — pauta de kit (ritmos)
+   ===================================================================== */
+.cab-x     { stroke: var(--nota); stroke-width: 2; stroke-linecap: round; }
+.cab-aro   { stroke: var(--acento-2); stroke-width: 2; stroke-linecap: round; }
+.cab-cheia { fill: var(--nota); }
+.ghost-r   { fill: var(--texto-fraco); }
+.paren-r   { fill: var(--texto-fraco); font-size: 15px; font-family: Georgia, serif; }
+.aberto-r  { fill: none; stroke: var(--nota); stroke-width: 1.6; }
+.haste-r   { stroke: var(--nota); stroke-width: 1.8; }
+.feixe-r   { fill: var(--nota); }
+.acento-r  { fill: none; stroke: var(--nota); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tempo-r   { stroke: var(--borda); stroke-width: 1.2; }
+.barra-r   { stroke: var(--pauta); stroke-width: 2; }
+.rotulo-r  { fill: var(--texto-fraco); font-size: 11px; }
+.faixa-r      { fill: var(--acento); opacity: 0; }
+.faixa-r.ativa { opacity: .15; }
+.passo-nota.ativa .cab-cheia,
+.passo-nota.ativa .feixe-r { fill: var(--acento); }
+.passo-nota.ativa .cab-x,
+.passo-nota.ativa .haste-r,
+.passo-nota.ativa .acento-r,
+.passo-nota.ativa .aberto-r { stroke: var(--acento); }
+.passo-nota.ativa .cab-aro { stroke: var(--acento); }
+
+.legenda-kit {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; margin: -4px 0 12px; padding: 0 4px;
+  font-size: 12px; color: var(--texto-fraco);
+}
+.legenda-kit b { color: var(--texto); font-weight: 700; }
+
+.rit-origem { display: flex; flex-wrap: wrap; gap: 6px; }

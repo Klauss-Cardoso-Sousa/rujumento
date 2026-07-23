@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<title>RUJUMENTO — Rudimentos para jumentos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icone-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RUJUMENTO">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header class="cabecalho">
+  <div class="marca">
+    <!-- cabecinha do jumento: sem borda, sem sombra, sem cara de botão.
+         O <span> em volta existe porque SVG não recebe evento de clique
+         de forma confiável em todos os navegadores. -->
+    <span class="cabecinha-area" id="cabecinha">
+    <svg class="cabecinha" viewBox="0 0 64 64" aria-label="Jumento">
+      <g fill="currentColor">
+        <ellipse cx="19" cy="15" rx="6" ry="14" transform="rotate(-20 19 15)"/>
+        <ellipse cx="45" cy="15" rx="6" ry="14" transform="rotate(20 45 15)"/>
+        <path d="M20 25 C19 17 45 17 44 25 L46 36 C48 47 41 54 32 54 C23 54 16 47 18 36 Z"/>
+      </g>
+      <ellipse cx="32" cy="45" rx="11" ry="8" fill="var(--focinho)"/>
+      <ellipse cx="28" cy="45" rx="1.6" ry="2.4" fill="var(--fundo)"/>
+      <ellipse cx="36" cy="45" rx="1.6" ry="2.4" fill="var(--fundo)"/>
+      <circle cx="26" cy="33" r="2.6" fill="var(--fundo)"/>
+      <circle cx="38" cy="33" r="2.6" fill="var(--fundo)"/>
+    </svg>
+    </span>
+    <div class="marca-txt">
+      <h1 class="logo" id="logo">RUJUMENTO</h1>
+      <p class="assinatura">Rudimentos para jumentos</p>
+    </div>
+  </div>
+  <button class="btn-icone" data-acao="tema" title="Alternar tema claro/escuro">◐</button>
+</header>
+
+<main>
+
+  <!-- ================= ABA JUMESTRE ================= -->
+  <section class="tela ativa" id="tela-jumestre">
+    <div class="cartao-mestre">
+      <div class="mestre-topo">
+        <span class="mestre-avatar" id="mestre-avatar">🫏</span>
+        <div>
+          <div class="mestre-nome" id="mestre-nome">Jumestre</div>
+          <div class="mestre-titulo" id="mestre-titulo">o professor da casa</div>
+        </div>
+      </div>
+      <p class="mestre-fala" id="mestre-fala"></p>
+      <div class="seletor-mestre">
+        <label>Professor
+          <select id="escolher-mestre"></select>
+        </label>
+      </div>
+    </div>
+
+    <div class="painel-numeros">
+      <div class="numero">
+        <span class="numero-valor" id="num-sequencia">0</span>
+        <span class="numero-rotulo">dias seguidos</span>
+      </div>
+      <div class="numero">
+        <span class="numero-valor" id="num-aprovados">0</span>
+        <span class="numero-rotulo">de 40 aprovados</span>
+      </div>
+      <div class="numero">
+        <span class="numero-valor" id="num-curtidas">0</span>
+        <span class="numero-rotulo">curtidas</span>
+      </div>
+    </div>
+
+    <div class="cartao-graduacao">
+      <div class="grad-linha">
+        <span class="grad-nome" id="grad-nome">Potro Perdido</span>
+        <span class="grad-prox" id="grad-prox"></span>
+      </div>
+      <p class="grad-desc" id="grad-desc"></p>
+      <div class="barra"><div class="barra-cheia" id="grad-barra"></div></div>
+    </div>
+
+    <div class="cartao-licao" id="cartao-licao">
+      <div class="licao-rotulo">Lição do dia</div>
+      <div class="licao-nome" id="licao-nome">—</div>
+      <div class="licao-meta" id="licao-meta"></div>
+      <button class="btn-play btn-licao" id="btn-licao">Ir para a lição</button>
+    </div>
+
+    <h3 class="titulo-secao">Trilha de aprendizado</h3>
+    <div id="lista-trilha"></div>
+  </section>
+
+  <!-- ================= ABA RUDIMENTOS ================= -->
+  <section class="tela" id="tela-rudimentos">
+    <div id="lista-rudimentos">
+      <p class="subtitulo">Os 40 rudimentos da PAS. Os marcados com ⚠ têm sticking a conferir.</p>
+      <div class="filtros">
+        <div class="filtro-linha" id="filtro-categoria"></div>
+        <div class="filtro-linha" id="filtro-nivel"></div>
+      </div>
+      <div id="secao-favoritos"></div>
+      <div class="grade-lista" id="grade-rudimentos"></div>
+      <p class="subtitulo oculto" id="lista-vazia">Nenhum rudimento com esse filtro.</p>
+    </div>
+
+    <div id="detalhe-rudimento" class="oculto">
+      <button class="btn-voltar" data-acao="voltar">‹ Rudimentos</button>
+      <div class="cabeca-rud">
+        <h2 id="rud-nome"></h2>
+        <button class="btn-favorito" data-acao="favoritar" id="btn-favorito" aria-pressed="false" title="Favoritar">☆</button>
+      </div>
+      <div class="etiquetas">
+        <span class="etiqueta" id="rud-categoria"></span>
+        <span class="etiqueta" id="rud-nivel"></span>
+        <span class="etiqueta" id="rud-compasso"></span>
+        <span class="etiqueta etiqueta-conferir oculto" id="rud-conferir">⚠ sticking a conferir</span>
+        <span class="etiqueta etiqueta-recorde oculto" id="rud-recorde"></span>
+      </div>
+      <p class="descricao" id="rud-descricao"></p>
+
+      <div class="caixa-partitura">
+        <svg id="partitura" viewBox="0 0 720 150" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="Partitura do rudimento"></svg>
+      </div>
+
+      <button class="btn-sec largo oculto" data-acao="alternar-variacao" id="btn-variacao"></button>
+      <div class="linha-acentos">
+        <button class="btn-sec largo" data-acao="editar-acentos" id="btn-editar-acentos">✎ Editar acentos</button>
+        <button class="btn-sec largo oculto" data-acao="restaurar-acentos" id="btn-restaurar-acentos">↺ Acentos oficiais</button>
+      </div>
+      <p class="dica oculto" id="dica-acentos">Toque nas notas da partitura para pôr ou tirar o acento.
+         Muda o desenho e o som. Toque em "Concluir" quando terminar.</p>
+
+      <div class="linha-som">
+        <button class="btn-alto-falante" data-acao="som-rudimento" aria-pressed="true">
+          <span data-role="icone-som">🔊</span>
+          <span data-role="texto-som">Exemplo sonoro: ligado</span>
+        </button>
+        <button class="btn-alto-falante" data-acao="som-metronomo" aria-pressed="true">
+          <span data-role="icone-metro">🔔</span>
+          <span data-role="texto-metro">Clique: ligado</span>
+        </button>
+      </div>
+
+      <!-- ---------- avaliação ---------- -->
+      <div class="cartao-avaliacao">
+        <h3 class="titulo-secao sem-margem">Avaliação do Jumestre</h3>
+        <p class="dica">Toque o rudimento no seu pad de treino. O Jumestre escuta pelo microfone,
+           mede o desvio de cada batida em milissegundos e dá nota de 0 a 10.</p>
+        <button class="btn-play" data-acao="aval-pad">🎤 Tocar para o Jumestre avaliar</button>
+        <div class="dica" id="aval-aviso-mic"></div>
+      </div>
+
+      <div id="controles-rudimento"></div>
+    </div>
+  </section>
+
+  <!-- ================= ABA RITMOS ================= -->
+  <section class="tela" id="tela-ritmos">
+    <div id="lista-ritmos">
+      <p class="subtitulo">15 grooves. Toque o alto-falante para ouvir o kit completo.</p>
+      <div class="filtros">
+        <div class="filtro-linha" id="filtro-origem"></div>
+      </div>
+      <div id="secao-favoritos-rit"></div>
+      <div class="grade-lista" id="grade-ritmos"></div>
+    </div>
+
+    <div id="detalhe-ritmo" class="oculto">
+      <button class="btn-voltar" data-acao="voltar-ritmo">‹ Ritmos</button>
+      <div class="cabeca-rud">
+        <h2 id="rit-nome"></h2>
+        <button class="btn-favorito" data-acao="favoritar-ritmo" id="btn-favorito-rit" aria-pressed="false" title="Favoritar">☆</button>
+      </div>
+      <div class="etiquetas">
+        <span class="etiqueta" id="rit-origem"></span>
+        <span class="etiqueta" id="rit-nivel"></span>
+        <span class="etiqueta" id="rit-compasso"></span>
+        <span class="etiqueta etiqueta-conferir oculto" id="rit-revisar">⚠ groove a revisar</span>
+        <span class="etiqueta etiqueta-recorde oculto" id="rit-recorde"></span>
+      </div>
+      <p class="descricao" id="rit-descricao"></p>
+
+      <div class="caixa-partitura">
+        <svg id="partitura-ritmo" viewBox="0 0 720 150" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="Partitura do ritmo"></svg>
+      </div>
+      <div class="legenda-kit" id="legenda-kit"></div>
+
+      <div class="linha-som">
+        <button class="btn-alto-falante" data-acao="som-rudimento" data-label="Groove" aria-pressed="true">
+          <span data-role="icone-som">🔊</span>
+          <span data-role="texto-som">Groove: ligado</span>
+        </button>
+        <button class="btn-alto-falante" data-acao="som-metronomo" data-label="Clique" aria-pressed="true">
+          <span data-role="icone-metro">🔔</span>
+          <span data-role="texto-metro">Clique: ligado</span>
+        </button>
+      </div>
+
+      <div id="controles-ritmo"></div>
+    </div>
+  </section>
+
+  <!-- ================= ABA METRÔNOMO ================= -->
+  <section class="tela" id="tela-metronomo">
+    <div id="controles-metronomo"></div>
+  </section>
+
+  <!-- ================= ABA PRÊMIOS ================= -->
+  <section class="tela" id="tela-premios">
+    <div class="cartao-premios-topo">
+      <div class="premios-numero"><span id="premios-curtidas">0</span> curtidas</div>
+      <p class="dica" id="premios-proxima"></p>
+      <div class="barra"><div class="barra-cheia" id="premios-barra"></div></div>
+      <p class="dica">Curta as frases do rodapé para desbloquear mestres, temas, timbres de caixa e zurros novos.</p>
+    </div>
+    <div id="lista-premios"></div>
+  </section>
+
+</main>
+
+<!-- ================= RODAPÉ COM A FRASE ================= -->
+<div class="rodape-frase" id="rodape">
+  <p class="frase" id="frase-texto"></p>
+  <button class="coracao" id="frase-coracao" aria-label="Curtir esta frase">♡</button>
+</div>
+
+<nav class="abas">
+  <button class="aba ativa" data-aba="tela-jumestre"><span>🫏</span>Jumestre</button>
+  <button class="aba" data-aba="tela-rudimentos"><span>🥁</span>Rudimentos</button>
+  <button class="aba" data-aba="tela-ritmos"><span>🎶</span>Ritmos</button>
+  <button class="aba" data-aba="tela-metronomo"><span>⏱</span>Metrônomo</button>
+  <button class="aba" data-aba="tela-premios"><span>🏅</span>Prêmios</button>
+</nav>
+
+<!-- ================= JANELAS ================= -->
+<div class="tapa-tela oculto" id="tapa">
+  <div class="janela" id="janela"></div>
+</div>
+
+<!-- área de batida do modo tela -->
+<div class="tapa-tela oculto" id="tapa-batida">
+  <div class="batida-caixa">
+    <div class="batida-topo">
+      <span id="batida-titulo">Bata no ritmo</span>
+      <button class="btn-fechar" data-acao="aval-cancelar">✕</button>
+    </div>
+    <div class="batida-alvo" id="batida-alvo">
+      <span class="batida-contador" id="batida-contador">0</span>
+      <span class="batida-dica">toque aqui a cada nota</span>
+    </div>
+    <button class="btn-play" data-acao="aval-terminar">Terminar e ver a nota</button>
+  </div>
+</div>
+
+<!-- ============ MODELO DOS CONTROLES (usado nas duas telas) ============ -->
+<template id="tpl-controles">
+  <div class="controles">
+
+    <div class="visor">
+      <div class="pulsos" data-role="pulsos"></div>
+      <div class="bpm-linha">
+        <button class="btn-redondo" data-acao="bpm" data-delta="-5">−5</button>
+        <button class="btn-redondo" data-acao="bpm" data-delta="-1">−1</button>
+        <div class="bpm-caixa">
+          <span class="bpm-num" data-role="bpm">100</span>
+          <span class="bpm-lbl">BPM</span>
+        </div>
+        <button class="btn-redondo" data-acao="bpm" data-delta="1">+1</button>
+        <button class="btn-redondo" data-acao="bpm" data-delta="5">+5</button>
+      </div>
+      <input class="slider" type="range" min="30" max="300" value="100" data-role="slider">
+      <div class="aviso-silencio oculto" data-role="aviso-silencio">SILÊNCIO (gap click)</div>
+    </div>
+
+    <div class="linha-botoes">
+      <button class="btn-play" data-acao="play"><span data-role="play-label">▶ Tocar</span></button>
+      <button class="btn-sec" data-acao="tap">TAP<small data-role="tap-dica">tempo</small></button>
+    </div>
+
+    <div class="volumes">
+      <label>
+        <span class="vol-nome">🔔 Volume do clique</span>
+        <input class="slider slider-vol" type="range" min="0" max="100" value="75" data-role="vol-metronomo">
+      </label>
+      <label>
+        <span class="vol-nome">🥁 Volume da caixa</span>
+        <input class="slider slider-vol" type="range" min="0" max="100" value="85" data-role="vol-caixa">
+      </label>
+    </div>
+
+    <div class="linha-selects">
+      <label>Compasso
+        <select data-role="compasso">
+          <option value="4/4">4/4</option>
+          <option value="3/4">3/4</option>
+          <option value="6/8">6/8</option>
+        </select>
+      </label>
+      <label>Subdivisão
+        <select data-role="subdivisao"></select>
+      </label>
+    </div>
+
+    <label class="linha-check">
+      <input type="checkbox" data-role="acento" checked>
+      <span>Acentuar o primeiro tempo</span>
+    </label>
+
+    <details class="painel">
+      <summary>⏫ Trainer de velocidade <span class="pino" data-role="pino-trainer"></span></summary>
+      <label class="linha-check">
+        <input type="checkbox" data-role="trainer-ativo">
+        <span>Ativar aumento automático</span>
+      </label>
+      <div class="linha-campos">
+        <label>Aumentar
+          <span class="campo"><input type="number" data-role="trainer-inc" min="1" max="20" value="5"><i>BPM</i></span>
+        </label>
+        <label>A cada
+          <span class="campo"><input type="number" data-role="trainer-comp" min="1" max="32" value="4"><i>compassos</i></span>
+        </label>
+        <label>Até
+          <span class="campo"><input type="number" data-role="trainer-alvo" min="30" max="300" value="160"><i>BPM</i></span>
+        </label>
+      </div>
+      <p class="dica" data-role="trainer-status">Desligado.</p>
+    </details>
+
+    <details class="painel">
+      <summary>🔇 Gap click <span class="pino" data-role="pino-gap"></span></summary>
+      <label class="linha-check">
+        <input type="checkbox" data-role="gap-ativo">
+        <span>Alternar compassos com som e em silêncio</span>
+      </label>
+      <div class="linha-campos">
+        <label>Com som
+          <span class="campo"><input type="number" data-role="gap-som" min="1" max="16" value="4"><i>compassos</i></span>
+        </label>
+        <label>Em silêncio
+          <span class="campo"><input type="number" data-role="gap-silencio" min="1" max="16" value="4"><i>compassos</i></span>
+        </label>
+      </div>
+      <p class="dica">Serve para testar o seu tempo interno: você continua tocando no silêncio e confere se voltou junto.</p>
+    </details>
+
+  </div>
+</template>
+
+<script src="motor.js"></script>
+<script src="dados.js"></script>
+<script src="ritmos.js"></script>
+<script src="partitura.js"></script>
+<script src="partitura-ritmo.js"></script>
+<script src="frases.js"></script>
+<script src="mestres.js"></script>
+<script src="recompensas.js"></script>
+<script src="trilha.js"></script>
+<script src="progresso.js"></script>
+<script src="avaliacao.js"></script>
+<script src="app.js"></script>
+<script>
+  /* Registra o service worker (faz o app funcionar offline).
+     Só roda em endereço seguro (https do GitHub Pages) ou localhost. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
