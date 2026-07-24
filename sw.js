@@ -9,13 +9,14 @@
        tudo de novo; sem isso ele continua servindo a versão antiga. <<<
    ===================================================================== */
 
-const CACHE = 'rujumento-v3';
+const CACHE = 'rujumento-v4';
 
 /* Caminhos RELATIVOS (funciona em qualquer subpasta do GitHub Pages). */
 const ARQUIVOS = [
   '.',
   'index.html',
   'estilo.css',
+  'zurro-audio.js',
   'motor.js',
   'dados.js',
   'ritmos.js',

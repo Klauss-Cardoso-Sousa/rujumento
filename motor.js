@@ -86,6 +86,7 @@ const Motor = (function () {
       for (let i = 0; i < n; i++) dados[i] = Math.random() * 2 - 1;
     }
     if (ctx.state === 'suspended') ctx.resume();
+    carregarZurros();   // decodifica os samples do easter egg em segundo plano
   }
 
   /* Clique do metrônomo — onda quadrada bem curta.
@@ -277,116 +278,76 @@ const Motor = (function () {
   }
 
   /* ================== ZURRO DE JUMENTO (easter egg) ==================
-     Modela o "i-ÓÓ" (hee-haw) real do jumento:
-       - fase EE  ("iiii"): inspiração — sobe de tom, esganiçada, fraca e tensa;
-       - fase HAW ("óó-nc"): expiração — o ronco alto e grave que desce de tom,
-         cheio de aspereza nasal.
-     A aspereza vem de dois dente-de-serra desafinados + distorção +
-     modulação rápida de amplitude (o "ronco"). Tudo sintetizado, sem
-     nenhum arquivo de áudio. Caricato de propósito. */
-  const ZURROS = {
-    padrao:     { ciclos: 3, fBaixo: 190, fAlto: 430, fFim: 120, durEE: 0.16, durHAW: 0.30, dist: 26, buzz: 38, buzzProf: 0.80 },
-    grave:      { ciclos: 2, fBaixo: 130, fAlto: 300, fFim: 82,  durEE: 0.22, durHAW: 0.44, dist: 32, buzz: 30, buzzProf: 0.85 },
-    agudo:      { ciclos: 4, fBaixo: 260, fAlto: 620, fFim: 175, durEE: 0.11, durHAW: 0.20, dist: 20, buzz: 46, buzzProf: 0.70 },
-    operistico: { ciclos: 3, fBaixo: 190, fAlto: 500, fFim: 110, durEE: 0.18, durHAW: 0.34, dist: 27, buzz: 38, buzzProf: 0.82, finalLongo: true },
-    trovao:     { ciclos: 2, fBaixo: 100, fAlto: 240, fFim: 62,  durEE: 0.24, durHAW: 0.52, dist: 40, buzz: 26, buzzProf: 0.90, finalLongo: true },
-    raro:       { ciclos: 4, fBaixo: 175, fAlto: 540, fFim: 95,  durEE: 0.17, durHAW: 0.34, dist: 30, buzz: 40, buzzProf: 0.85, finalLongo: true }
-  };
+     Toca amostras reais de jumento (CC0 — ver zurro-audio.js), decodificadas
+     de base64. As variações saem do mesmo material, só mudando playbackRate
+     e envelope. Valores ajustados de ouvido pelo Klauss no laboratório. */
+  let zurroBuffers = null;   // { '2': AudioBuffer, '3': AudioBuffer }
+  let zurroAlterna = 0;      // alterna 2/3 a cada toque padrão
+  let zurroPendente = null;  // toca assim que o sample terminar de decodificar
 
-  let curvaCache = {};
-  function curvaDistorcao(k) {
-    if (curvaCache[k]) return curvaCache[k];
-    const n = 1024, c = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      const x = (i * 2) / n - 1;
-      c[i] = ((1 + k) * x) / (1 + k * Math.abs(x));
-    }
-    curvaCache[k] = c;
-    return c;
+  function b64ParaBuffer(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+  function carregarZurros() {
+    if (zurroBuffers || typeof ZurroAudio === 'undefined') return;
+    zurroBuffers = {};
+    ['2', '3'].forEach(function (n) {
+      try {
+        ctx.decodeAudioData(b64ParaBuffer(ZurroAudio['sample' + n]), function (buf) {
+          zurroBuffers[n] = buf;
+          if (zurroPendente && zurroPendente.s === n) {
+            const c = zurroPendente; zurroPendente = null; tocarZurroSample(c);
+          }
+        }, function () {});
+      } catch (e) {}
+    });
   }
 
-  function cicloZurro(t, durEE, durHAW, c, destino) {
-    const dur = durEE + durHAW;
+  /* Cada variação (ajustada de ouvido): s = sample, rate = velocidade/tom,
+     g = volume, atk/rel = envelope em segundos. */
+  const ZURRO_CFG = {
+    padrao2:    { s: '2', rate: 1.22, g: 1.5, atk: 0.108, rel: 0.335 },
+    padrao3:    { s: '3', rate: 0.92, g: 1.5, atk: 0.027, rel: 0.240 },
+    raro:       { s: '3', rate: 0.80, g: 1.5, atk: 0.03,  rel: 0.42  },
+    grave:      { s: '2', rate: 0.74, g: 1.5, atk: 0.10,  rel: 0.36  },
+    agudo:      { s: '2', rate: 1.50, g: 1.4, atk: 0.02,  rel: 0.20  },
+    operistico: { s: '3', rate: 0.86, g: 1.5, atk: 0.03,  rel: 0.45  },
+    trovao:     { s: '2', rate: 0.56, g: 1.5, atk: 0.10,  rel: 0.42  }
+  };
 
-    // dois dente-de-serra levemente desafinados = corpo áspero e encorpado
-    const osc1 = ctx.createOscillator(); osc1.type = 'sawtooth';
-    const osc2 = ctx.createOscillator(); osc2.type = 'sawtooth';
-    [osc1, osc2].forEach(function (o, k) {
-      const det = k ? 1.012 : 1;                                    // desafinação
-      o.frequency.setValueAtTime(c.fBaixo * det, t);
-      o.frequency.exponentialRampToValueAtTime(c.fAlto * det, t + durEE); // "iiii" sobe
-      o.frequency.exponentialRampToValueAtTime(c.fFim * det, t + dur);    // "óó" desce
-    });
-
-    // distorção: engrossa e torna rouco
-    const forma = ctx.createWaveShaper();
-    forma.curve = curvaDistorcao(c.dist);
-    forma.oversample = '4x';
-
-    // ressonâncias nasais da garganta do jumento
-    const nasal = ctx.createBiquadFilter();
-    nasal.type = 'bandpass'; nasal.frequency.value = 850; nasal.Q.value = 1.1;
-    const pico = ctx.createBiquadFilter();
-    pico.type = 'peaking'; pico.frequency.value = 1700; pico.Q.value = 1.4; pico.gain.value = 8;
-
-    // rasp: modulação de amplitude rápida (o "ronco" característico).
-    // Vai de (1 - buzzProf) até 1, sem passar por valores negativos.
-    const buzz = ctx.createGain();
-    buzz.gain.value = 1 - c.buzzProf / 2;
-    const lfo = ctx.createOscillator();
-    lfo.type = 'triangle';
-    lfo.frequency.setValueAtTime(c.buzz * 0.7, t);                 // ee ronca devagar
-    lfo.frequency.linearRampToValueAtTime(c.buzz, t + durEE);      // haw acelera o ronco
-    const lfoProf = ctx.createGain();
-    lfoProf.gain.value = c.buzzProf / 2;
-    lfo.connect(lfoProf); lfoProf.connect(buzz.gain);
-    lfo.start(t); lfo.stop(t + dur + 0.05);
-
-    // envelope: "iiii" fraco e tenso, "óó-nc" estoura e decai
-    const env = ctx.createGain();
-    env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(0.22, t + 0.05);              // ee entra fraco
-    env.gain.linearRampToValueAtTime(0.26, t + durEE * 0.9);            // ee estica, tenso
-    env.gain.exponentialRampToValueAtTime(0.85, t + durEE + 0.04);     // HAW estoura
-    env.gain.exponentialRampToValueAtTime(0.34, t + durEE + durHAW * 0.55);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + dur);            // decai
-
-    osc1.connect(forma); osc2.connect(forma);
-    forma.connect(nasal).connect(pico).connect(buzz).connect(env).connect(destino);
-    osc1.start(t); osc2.start(t);
-    osc1.stop(t + dur + 0.05); osc2.stop(t + dur + 0.05);
-
-    // sopro pelas narinas: inspira agudo no começo, bufa no fim
-    [t, t + durEE].forEach(function (tt, k) {
-      const ar = ctx.createBufferSource();
-      ar.buffer = bufferRuido;
-      const arF = ctx.createBiquadFilter();
-      arF.type = 'bandpass'; arF.frequency.value = k ? 1400 : 2200; arF.Q.value = 0.7;
-      const arG = ctx.createGain();
-      arG.gain.setValueAtTime(0.0001, tt);
-      arG.gain.exponentialRampToValueAtTime(k ? 0.10 : 0.06, tt + 0.03);
-      arG.gain.exponentialRampToValueAtTime(0.0001, tt + 0.12);
-      ar.connect(arF).connect(arG).connect(destino);
-      ar.start(tt, Math.random() * 0.4);
-      ar.stop(tt + 0.16);
-    });
+  function tocarZurroSample(cfg) {
+    const buf = zurroBuffers && zurroBuffers[cfg.s];
+    if (!buf) return 0;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = cfg.rate;
+    const g = ctx.createGain();
+    const t = ctx.currentTime + 0.02;
+    const dur = buf.duration / cfg.rate;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(cfg.g, t + Math.max(0.002, cfg.atk));
+    g.gain.setValueAtTime(cfg.g, Math.max(t + cfg.atk, t + dur - cfg.rel));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(g).connect(mestre);
+    src.start(t); src.stop(t + dur + 0.05);
+    return dur;
   }
 
   function zurro(tipo) {
     iniciarAudio();
-    const c = ZURROS[tipo] || ZURROS.padrao;
-    const saida = ctx.createGain();
-    saida.gain.value = 0.55;
-    saida.connect(mestre);
-
-    let t = ctx.currentTime + 0.03;
-    for (let i = 0; i < c.ciclos; i++) {
-      const ultimo = (i === c.ciclos - 1);
-      const durHAW = (ultimo && c.finalLongo) ? c.durHAW * 1.9 : c.durHAW;
-      cicloZurro(t, c.durEE, durHAW, c, saida);
-      t += c.durEE + durHAW + 0.04;
+    carregarZurros();
+    let cfg;
+    if (!tipo || tipo === 'padrao') {
+      cfg = (zurroAlterna++ % 2 === 0) ? ZURRO_CFG.padrao2 : ZURRO_CFG.padrao3;
+    } else {
+      cfg = ZURRO_CFG[tipo] || ZURRO_CFG.padrao2;
     }
-    return t - ctx.currentTime;   // duração total, em segundos
+    if (zurroBuffers && zurroBuffers[cfg.s]) return tocarZurroSample(cfg) || 0.5;
+    zurroPendente = cfg;   // ainda decodificando: toca quando ficar pronto
+    return 0.6;
   }
 
   const INTENSIDADE = { acento: 1.0, normal: 0.52, grace: 0.20 };
