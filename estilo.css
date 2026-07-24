@@ -68,7 +68,9 @@ main { max-width: 520px; margin: 0 auto; padding: 12px 14px 24px; }
 .cabecalho {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px;
+  /* padding-top extra = altura do "notch"/status bar (tela cheia no iPhone),
+     para o nome não ficar escondido embaixo do alto-falante. */
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
   background: color-mix(in srgb, var(--fundo) 88%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--borda);

@@ -9,7 +9,7 @@
        tudo de novo; sem isso ele continua servindo a versão antiga. <<<
    ===================================================================== */
 
-const CACHE = 'rujumento-v1';
+const CACHE = 'rujumento-v2';
 
 /* Caminhos RELATIVOS (funciona em qualquer subpasta do GitHub Pages). */
 const ARQUIVOS = [
@@ -34,6 +34,7 @@ const ARQUIVOS = [
   'icone-192.png',
   'icone-512.png',
   'icone-180.png',
+  'apple-touch-icon.png',
   'icone-maskable-512.png'
 ];
 
