@@ -9,7 +9,7 @@
        tudo de novo; sem isso ele continua servindo a versão antiga. <<<
    ===================================================================== */
 
-const CACHE = 'rujumento-v2';
+const CACHE = 'rujumento-v3';
 
 /* Caminhos RELATIVOS (funciona em qualquer subpasta do GitHub Pages). */
 const ARQUIVOS = [
